@@ -11,8 +11,40 @@ export const clearResults = () => {
 }
 
 
+const baqarTitle = (title, limit = 17) => {
+    if(title.length <= 17) return title;
+    let newTitle = "";
+    let finalLimit = 0;
+    for (let index = limit - 1; index >= 0; index--) {
+        if(title[index] === " "){
+            finalLimit = index;
+            break;
+        }   
+    }
 
+    for (let index = 0; index < finalLimit; index++) {
+        newTitle += title[index];
+    }
 
+    return `${newTitle}...`
+}
+
+const limitRecipeTitle = (title, limit = 17) => {
+    const newTitle = []
+    if(title.length > limit){
+        title.split(" ").reduce((acc, cur) => {
+            if(acc + cur.length <= limit){
+                newTitle.push(cur)
+            }
+
+            return acc + cur.length
+        }, 0);
+
+        return `${newTitle.join(" ")}...`
+    }
+
+    return title;
+}
 
 const renderRecipe = (recipe) => {
     const markup = `
@@ -22,7 +54,7 @@ const renderRecipe = (recipe) => {
                             <img src="${recipe.image_url}" alt="Test">
                         </figure>
                         <div class="results__data">
-                            <h4 class="results__name">${recipe.title}</h4>
+                            <h4 class="results__name">${baqarTitle(recipe.title)}</h4>
                             <p class="results__author">${recipe.publisher}</p>
                         </div>
                     </a>

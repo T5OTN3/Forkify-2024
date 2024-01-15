@@ -1,8 +1,10 @@
 // Global app controller
 
+import Recipe from "./modules/Recipe.js";
 import Search from "./modules/Search.js";
 import { clearLoader, elements, renderLoader } from "./views/base.js"
 import * as searchView from "./views/searchView.js";
+import * as recipeView from "./views/recipeView.js";
 
 
 /* 
@@ -57,4 +59,32 @@ elements.searchResPage.addEventListener("click", e => {
         searchView.clearResults();
         searchView.renderResult(state.search.result, goto)
     }
-})
+});
+
+const controlRecipe = async () => {
+    //get id
+    const id = window.location.hash.replace("#","")
+
+    if(id){
+        //Prepare UI and add Loader
+        recipeView.clearRecipe();
+        renderLoader(elements.recipe);
+
+        //Create new Object
+        state.recipe = new Recipe(id)
+
+        //Get recipe
+        await state.recipe.getRecipe();
+        state.recipe.calcTime();
+        state.recipe.calcServings();
+        state.recipe.parseIngredients();
+
+
+        //Clear Loader and Render Recipe
+        clearLoader();
+        recipeView.renderRecipe(state.recipe)
+    }
+
+}
+
+window.addEventListener("hashchange", controlRecipe)
