@@ -5,6 +5,8 @@ import Search from "./modules/Search.js";
 import { clearLoader, elements, renderLoader } from "./views/base.js"
 import * as searchView from "./views/searchView.js";
 import * as recipeView from "./views/recipeView.js";
+import * as listView from "./views/listView.js";
+import List from "./modules/List.js";
 
 
 /* 
@@ -15,6 +17,7 @@ import * as recipeView from "./views/recipeView.js";
 */
 
 const state = {};
+window.state = state;
 
 /* Search Cpntroller */
 const controlSearch = async (e) => {
@@ -70,6 +73,8 @@ const controlRecipe = async () => {
         recipeView.clearRecipe();
         renderLoader(elements.recipe);
 
+        if(state.search) searchView.highlitedSelected(id);
+
         //Create new Object
         state.recipe = new Recipe(id)
 
@@ -87,4 +92,53 @@ const controlRecipe = async () => {
 
 }
 
-window.addEventListener("hashchange", controlRecipe)
+/* window.addEventListener("hashchange", controlRecipe);
+window.addEventListener("load", controlRecipe); */
+
+["hashchange","load"].forEach(event => window.addEventListener(event, controlRecipe) );
+
+const conrollerList = () => {
+    if(!state.list) {
+        state.list = new List();
+
+        //Add items
+        state.recipe.ingredients.forEach(el => {
+            const item = state.list.addItems(el.count, el.unit, el.ingredient);
+            listView.renderItem(item)
+        })
+    }
+}
+
+// Handling recipe button click
+elements.recipe.addEventListener("click", e => {
+    if(e.target.matches(".btn-dec, .btn-dec *")){
+        // dec
+        if(state.recipe.servings > 1){
+            state.recipe.updateServings("dec");
+            recipeView.updateServingsIngredients(state.recipe)
+        }
+    }if(e.target.matches(".btn-inc, .btn-inc *")){
+        // inc
+        state.recipe.updateServings("inc");
+        recipeView.updateServingsIngredients(state.recipe)
+    }else if(e.target.matches(".recipe__btn__add, .recipe__btn__add *")){
+        //List
+        conrollerList()
+    }
+})
+
+//Handle delete and update list item events
+elements.shopping.addEventListener("click", (e) => {
+    const id = e.target.closest(".shopping__item").dataset.itemid;
+
+    if(e.target.matches(".shopping__delete, .shopping__delete *")){
+        //delete
+        state.list.deleteItem(id)
+        //delete ui
+        listView.deleteItem(id);
+    }else if(e.target.matches(".shopping__count-value")){
+        //update
+        const val = parseInt(e.target.value,10);
+        state.list.updateCount(id, val);
+    }
+})
