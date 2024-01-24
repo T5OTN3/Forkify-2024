@@ -20,7 +20,7 @@ export const highlitedSelected = (id) => {
 }
 
 
-const baqarTitle = (title, limit = 17) => {
+export const baqarTitle = (title, limit = 17) => {
     if(title.length <= 17) return title;
     let newTitle = "";
     let finalLimit = 0;
